@@ -17,7 +17,7 @@ data:
   services.yaml: |
     - Infrastructure:
         - Technitium:
-            href: https://10.0.40.2:5380
+            href: https://dns.lab.paroparo.it
             description: DNS server (nebula)
             icon: technitium.png
         - Flux:
