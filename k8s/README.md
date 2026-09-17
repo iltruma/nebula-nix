@@ -22,7 +22,7 @@ k8s/
     ├── uptime-kuma/            Status page
     ├── beszel/                 Hub + agent monitoring
     ├── homepage/               Dashboard dichiarativa
-    ├── infra-proxy/            Traefik reverse proxy → iris (router) / nebula (legacy)
+    ├── infra-proxy/            Servizi Traefik verso host (technitium-web)
     └── <nome>/                 Qualsiasi nuovo servizio
 ```
 

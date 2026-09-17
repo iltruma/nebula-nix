@@ -30,7 +30,6 @@ ns1     IN  A   10.0.40.2
 ; ── Host fisici ──────────────────────────────────────────────────────────────
 nebula IN  A   10.0.40.2
 taiga   IN  A   10.0.10.253
-; iris (Fritz!Box): in bridge PPPoE passthrough, IP legacy da verificare
 
 ; ── Wildcard: tutti i servizi k3s via Traefik su nebula ─────────────────────
 ; Copre automaticamente qualsiasi nuovo servizio deployato su k3s.
