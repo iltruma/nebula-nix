@@ -1,6 +1,6 @@
 # k8s/clusters/dyson/
 #
-# Entry point Flux CD per il cluster k3s su nebula (192.168.178.2).
+# Entry point Flux CD per il cluster k3s su nebula (10.0.40.2).
 #
 # Struttura:
 #   flux-system/        ← generato da flux bootstrap (non committare a mano)

@@ -20,9 +20,9 @@ metadata:
   namespace: infra-proxy
 subsets:
   # Technitium è un servizio HOST NixOS (non un pod k8s), gira su
-  # 192.168.178.2:5380. Traefik lo raggiunge via hostNetwork.
+  # 10.0.40.2:5380. Traefik lo raggiunge via hostNetwork.
   - addresses:
-      - ip: 192.168.178.2
+      - ip: 10.0.40.2
     ports:
       - port: 5380
 ---
