@@ -1,0 +1,68 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: traefik
+  namespace: flux-system
+spec:
+  interval: 24h
+  url: https://helm.traefik.io/traefik
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: traefik
+      # ponytail: chart version (41.x), NON app version (3.7.x) — traefik slega le due
+      version: "41.x"
+      sourceRef:
+        kind: HelmRepository
+        name: traefik
+        namespace: flux-system
+      interval: 24h
+  # Traefik ascolta su 8000/8443 (default del chart). klipper-lb (abilitato
+  # rimuovendo --disable=servicelb in k3s.nix) espone 80/443 sull'IP del
+  # nodo e forwarda verso le NodePort 8000/8443. È il pattern canonico k3s
+  # per single-node: niente hostNetwork, niente capability hack.
+  # Il redirect HTTP→HTTPS è configurato a livello di Traefik stesso
+  # (entryPoint websecure), non del port redirect del chart.
+  values:
+    deployment:
+      replicas: 1
+    ports:
+      web:
+        http:
+          redirections:
+            entryPoint:
+              to: websecure
+              scheme: https
+    providers:
+      kubernetesCRD:
+        enabled: true
+        # allowCrossNamespace: permette a un IngressRoute in namespace
+        # "homepage" di referenziare un Middleware o TLSStore in
+        # "kube-system" (es. il nostro default-tlsstore). Default false
+        # → silenziosamente ignora cross-namespace refs.
+        allowCrossNamespace: true
+      kubernetesIngress:
+        enabled: true
+        # Permette Ingress con serviceName che punta a Service non ancora
+        # pronte (utile durante bootstrap prima che i pod siano ready).
+        allowEmptyServices: true
+    ingressClass:
+      enabled: true
+      isDefaultClass: true
+    ingressRoute:
+      dashboard:
+        enabled: false   # dashboard esposta manualmente se serve
+    service:
+      type: LoadBalancer
+      spec:
+        # externalTrafficPolicy: Local preserva il client IP (necessario
+        # per IP whitelist middleware). Default Cluster → NAT, IP perso.
+        # Single-node: Local è sempre OK.
+        externalTrafficPolicy: Local
