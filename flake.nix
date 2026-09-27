@@ -1,10 +1,10 @@
 # nebula-nix — flake NixOS minimale per nebula (Dell Optiplex 3050)
 # Repo dedicato a nebula: layout hosts/nebula + modules + secrets + k8s/
 {
-  description = "nebula — NixOS baremetal (k3s + Technitium + Flux GitOps)";
+  description = "nebula — NixOS baremetal";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     sops-nix = {
