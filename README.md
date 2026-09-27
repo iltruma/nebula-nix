@@ -19,7 +19,7 @@ hosts/nebula/        tutta la config del server
   dns/               zona BIND lab.paroparo.it + blocklist (import manuale)
 modules/             helper cross-host: common (utenti, SSH, sops), keys
 secrets/             secret host cifrati SOPS + age (*.enc.yaml)
-k8s/                 manifesti GitOps, sincronizzati da Flux (kustomization dyson)
+k8s/                 manifesti GitOps, sincronizzati da Flux (kustomization nebula)
 ```
 
 ## Comandi

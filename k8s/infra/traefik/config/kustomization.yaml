@@ -2,6 +2,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 # Config layer: risorse che dipendono dalle CRD di Traefik.
 # Questo Kustomization viene applicato DOPO che install/ è Ready
-# (vedi dependsOn nel Kustomization Flux in clusters/dyson/traefik-config.yaml).
+# (vedi dependsOn nel Kustomization Flux in clusters/nebula/traefik-config.yaml).
 resources:
   - tlsstore.yaml

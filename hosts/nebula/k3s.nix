@@ -16,18 +16,18 @@
 
     # Override del ConfigMap bundled: delega a Technitium per lab.paroparo.it.
     # Il nome "coredns" è richiesto da k3s (sovrascrive il ConfigMap built-in).
-    # Kustomization "dyson": senza questo Flux clona il repo ma non sa cosa applicare.
+    # Kustomization "nebula": senza questo Flux clona il repo ma non sa cosa applicare.
     manifests."flux-cluster-kustomization" = {
       content = {
         apiVersion = "kustomize.toolkit.fluxcd.io/v1";
         kind = "Kustomization";
         metadata = {
-          name = "dyson";
+          name = "nebula";
           namespace = "flux-system";
         };
         spec = {
           interval = "10m";
-          path = "./k8s/clusters/dyson";
+          path = "./k8s/clusters/nebula";
           prune = true;
           sourceRef = {
             kind = "GitRepository";

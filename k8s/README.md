@@ -1,37 +1,44 @@
 # k8s — GitOps con Flux CD v2
 
-Questa cartella contiene tutto ciò che gira sul cluster k3s (`dyson`), gestito in
-**GitOps** da Flux CD v2: lo stato desiderato vive qui in Git, il
-kustomize-controller lo sincronizza nel cluster ogni 10 minuti.
+Questa cartella contiene tutto ciò che gira sul cluster k3s (`nebula`, singolo
+nodo su 10.0.40.2), gestito in **GitOps** da Flux CD v2: lo stato desiderato
+vive qui in Git, il kustomize-controller lo sincronizza nel cluster ogni 10
+minuti.
 
 ## Struttura
 
 ```
 k8s/
 ├── clusters/
-│   └── dyson/                   ← Kustomization radice per il cluster "dyson"
-│       ├── flux-system/        applicate da `flux bootstrap`, NON editare a mano
-│       ├── infra.yaml          Kustomization → k8s/infra/
-│       └── apps.yaml           Kustomization → k8s/apps/
+│   └── nebula/                        ← Kustomization radice per il cluster "nebula"
+│       ├── traefik.yaml               Kustomization install → k8s/infra/traefik/install
+│       ├── traefik-config.yaml        Kustomization config  → k8s/infra/traefik/config
+│       ├── cert-manager.yaml          Kustomization install → k8s/infra/cert-manager/install
+│       ├── infrastructure.yaml        Kustomization config  → k8s/infra/cert-manager/config
+│       └── apps.yaml                  Kustomization → k8s/apps/
 │
-├── infra/                      ← Infrastruttura (HelmRelease, ClusterIssuer, …)
-│   ├── traefik/                HelmRelease Traefik 3.7.x
-│   └── cert-manager/           HelmRelease cert-manager + ClusterIssuer + secret.enc.yaml
+├── infra/                             ← Infrastruttura (HelmRelease, ClusterIssuer, …)
+│   ├── traefik/                       HelmRelease Traefik 3.7.x + TLSStore
+│   └── cert-manager/                  HelmRelease cert-manager + ClusterIssuer + secret.enc.yaml
 │
-└── apps/                       ← Servizi applicativi, una cartella per servizio
-    ├── uptime-kuma/            Status page
-    ├── beszel/                 Hub + agent monitoring
-    ├── homepage/               Dashboard dichiarativa
-    ├── infra-proxy/            Servizi Traefik verso host (technitium-web)
-    ├── jellyfin/               Jellyfin Media Server
-    └── <nome>/                 Qualsiasi nuovo servizio
+└── apps/                              ← Servizi applicativi, una cartella per servizio
+    ├── uptime-kuma/                   Status page
+    ├── beszel/                        Hub + agent monitoring
+    ├── homepage/                      Dashboard dichiarativa
+    ├── technitium/                    Ingress verso Technitium su host (namespace infra-proxy)
+    ├── infra-proxy/                   Namespace per i proxy Traefik verso host
+    ├── jellyfin/                      Jellyfin Media Server
+    └── <nome>/                        Qualsiasi nuovo servizio
 ```
 
 ## Come funziona
 
-`k8s/clusters/dyson/infra.yaml` e `apps.yaml` sono oggetti `Kustomization` Flux.
-Puntano rispettivamente a `k8s/infra/` e `k8s/apps/` e le riconciliano in
-sequenza (infra prima, poi apps, per garantire che CRD e cert siano pronti).
+`hosts/nebula/k3s.nix` installa Flux (via HelmChart `flux2`) e crea la
+Kustomization radice `nebula`, che punta a `k8s/clusters/nebula`. I file
+`traefik.yaml`, `cert-manager.yaml`, `traefik-config.yaml`, `infrastructure.yaml`
+e `apps.yaml` sono oggetti `Kustomization` Flux: i layer infra si riconciliano
+in sequenza (traefik + cert-manager → config → apps, via `dependsOn`, per
+garantire che CRD e cert siano pronti).
 
 Aggiungere un nuovo servizio:
 
@@ -62,26 +69,22 @@ di committare.
 
 ## Bootstrap (prima installazione, da rifare solo in disaster recovery)
 
-```bash
-export KUBECONFIG=~/.kube/config-k3s
+Non serve `flux bootstrap`: Flux è installato e configurato interamente da
+NixOS in `hosts/nebula/k3s.nix`:
 
-# 1. Installa Flux sul cluster e lo collega al repo GitHub
-flux bootstrap github \
-  --owner=<github-org> \
-  --repository=nebula-nix \
-  --branch=main \
-  --path=k8s/clusters/dyson \
-  --personal
+- `HelmChart flux2` (namespace kube-system) installa Flux nel cluster
+- i manifest `flux-git-repository` (GitRepository `flux-system` → GitHub) e
+  `flux-cluster-kustomization` (root Kustomization → `k8s/clusters/nebula`)
+  vengono applicati automaticamente da k3s da
+  `/var/lib/rancher/k3s/server/manifests/`
+- i Secret `flux-git-auth` (deploy key SSH) e `flux-sops-age` (decifrazione) sono
+  distribuiti via **sops-nix**: sops li piazza in `/run/secrets/k3s/` e
+  tmpfiles.li li symlinka nei manifest di k3s prima che parta (vedi
+  `k3s.nix` voes `systemd.tmpfiles.rules`)
 
-# 2. Crea il Secret con la chiave age privata (SOPS decryption)
-kubectl create secret generic sops-age \
-  --namespace=flux-system \
-  --from-file=age.agekey=<path/to/age.key>
-```
-
-> ⚠️ Il Secret `sops-age` va creato **prima** che Flux tenti di sincronizzare
-> qualsiasi `*.enc.yaml`. Senza di esso il kustomize-controller fallisce con
-> errore di decifrazione.
+Quindi in disaster recovery basta reinstallare nebula con il flake
+(`sudo nixos-rebuild switch --flake ~/nebula-nix#nebula`) e il cluster si
+ricostruisce da solo, secret inclusi.
 
 ## Verifica
 
