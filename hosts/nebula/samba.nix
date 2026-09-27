@@ -32,9 +32,12 @@
     };
   };
 
-  # La radice del dataset deve essere scrivibile da cosimo (i file dentro
-  # mantengono i permessi gia' presenti)
+  # La radice e le sottodirectory note del dataset sono di cosimo: la regola d
+  # crea la dir se manca e corregge owner/group/permessi se esiste gia'.
+  # Directory future: da SMB nascono gia' di cosimo; da SSH-createle come cosimo.
   systemd.tmpfiles.rules = [
     "d /mnt/media 0775 cosimo users - -"
+    "d /mnt/media/movies 0775 cosimo users - -"
+    "d /mnt/media/series 0775 cosimo users - -"
   ];
 }
