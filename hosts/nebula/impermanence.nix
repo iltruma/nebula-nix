@@ -12,6 +12,7 @@
     directories = [
       "/var/lib/nixos"  # UID/GID allocati da NixOS
       "/var/log"
+      "/var/lib/samba"  # tdb Samba: passdb (smbpasswd), lock, share info
       # /persist/sops/ usato direttamente da sops-nix (keyFile)
     ];
   };

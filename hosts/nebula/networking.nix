@@ -27,6 +27,7 @@
       80
       443
       6443
+      445   # SMB (samba, share /mnt/media)
     ];
     allowedUDPPorts = [ 53 ];
   };

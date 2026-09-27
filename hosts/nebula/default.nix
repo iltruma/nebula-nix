@@ -11,6 +11,7 @@
     ./k3s.nix
     ./technitium.nix
     ./beszel-agent.nix
+    ./samba.nix
     ../../modules/common.nix
   ];
 
