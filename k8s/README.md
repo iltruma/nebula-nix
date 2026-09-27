@@ -23,6 +23,7 @@ k8s/
     ├── beszel/                 Hub + agent monitoring
     ├── homepage/               Dashboard dichiarativa
     ├── infra-proxy/            Servizi Traefik verso host (technitium-web)
+    ├── jellyfin/               Jellyfin Media Server
     └── <nome>/                 Qualsiasi nuovo servizio
 ```
 

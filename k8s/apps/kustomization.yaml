@@ -6,3 +6,4 @@ resources:
   - infra-proxy
   - technitium
   - uptime-kuma
+  - jellyfin

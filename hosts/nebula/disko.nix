@@ -79,6 +79,12 @@
             options.mountpoint = "/var/lib/rancher/k3s";
             mountpoint = "/var/lib/rancher/k3s";
           };
+
+          "media" = {
+            type = "zfs_fs";
+            options.mountpoint = "/mnt/media";
+            mountpoint = "/mnt/media";
+          };
         };
       };
     };
