@@ -1,13 +1,11 @@
 # Samba: condivide /mnt/media (dataset tank/media) in LAN verso Windows Explorer
 # Accesso solo per l'utente `cosimo`; password da settare una volta sul server:
 #   sudo smbpasswd -a cosimo
-# (DB password Samba separato dalla password di sistema, persistito in /var/lib/samba)
 { ... }:
 
 {
   services.samba = {
     enable = true;
-    # Le porte sono dichiarate solo in networking.nix (unica fonte di verita')
     openFirewall = false;
     # Solo smbd: nmbd (browsing NetBIOS) e winbindd (domain join) non servono
     nmbd.enable = false;
@@ -15,7 +13,6 @@
     settings = {
       global = {
         "server role" = "standalone server";
-        # SMB2 minimo: via il vecchio SMB1
         "server min protocol" = "SMB2";
         "map to guest" = "never";
         # Binda solo LAN + lo, non le interfacce k3s (cni0, flannel.1, ...)
@@ -34,7 +31,6 @@
 
   # La radice e le sottodirectory note del dataset sono di cosimo: la regola d
   # crea la dir se manca e corregge owner/group/permessi se esiste gia'.
-  # Directory future: da SMB nascono gia' di cosimo; da SSH-createle come cosimo.
   systemd.tmpfiles.rules = [
     "d /mnt/media 0775 cosimo users - -"
     "d /mnt/media/movies 0775 cosimo users - -"
