@@ -18,10 +18,14 @@ spec:
       containers:
         - image: jellyfin/jellyfin:latest
           name: jellyfin
+          securityContext:
+            privileged: true #per accesso a /dev/dri
           ports:
             - containerPort: 8096
               protocol: TCP
           volumeMounts:
+            - mountPath: /dev/dri
+              name: intel-gpu
             - mountPath: /config
               name: jellyfin-config
             - mountPath: /cache
@@ -30,6 +34,10 @@ spec:
               name: jellyfin-media
               readOnly: true
       volumes:
+        - name: intel-gpu
+          hostPath:
+            path: /dev/dri
+            type: Directory
         - name: jellyfin-config
           persistentVolumeClaim:
             claimName: jellyfin-config-pvc
