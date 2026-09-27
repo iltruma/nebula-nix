@@ -19,5 +19,7 @@
     owner = "beszel-agent";
     group = "beszel-agent";
     mode = "0400";
+    # al cambio della chiave l'agent riparte da solo (niente chiave stale in memoria)
+    restartUnits = [ "beszel-agent.service" ];
   };
 }
