@@ -40,7 +40,6 @@ taiga   IN  A   10.0.10.253
 uptime      IN  A   10.0.40.2
 homepage    IN  A   10.0.40.2
 beszel      IN  A   10.0.40.2
-sentinel    IN  A   10.0.40.2
 
 ; ── CAA: limita quali CA possono emettere cert per lab.paroparo.it ─────────
 ; Best practice per hardening: blocca CA non autorizzate.

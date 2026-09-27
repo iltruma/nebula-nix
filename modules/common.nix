@@ -9,8 +9,6 @@
     openssh.authorizedKeys.keys = import ./keys.nix;
   };
 
-  security.sudo.wheelNeedsPassword = false;
-
   services.openssh = {
     enable = true;
     openFirewall = true;
