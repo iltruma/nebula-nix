@@ -1,4 +1,4 @@
-# Technitium DNS server — configurazione UI/zone in docs/04-dns-technitium.md
+# Technitium DNS server
 { config, lib, pkgs, unstable, ... }:
 
 {
@@ -13,8 +13,10 @@
   networking.firewall = {
     allowedUDPPorts = [ 53 ];
     allowedTCPPorts = [ 53 ];
-    # 5380 solo loopback: Traefik usa hostNetwork su nebula, il traffico
-    # verso 10.0.40.2:5380 passa per lo — i client LAN vengono droppati.
+    # 5380 (web UI): raggiungibile solo da loopback (tunnel SSH) e dai pod k3s
+    # (Traefik, via Endpoints): kube-router accetta il traffico pod→host nella
+    # catena KUBE-ROUTER-INPUT prima di nixos-fw; i client LAN vengono droppati
+    # da nixos-fw (5380 non è tra le porte aperte).
     extraInputRules = ''
       -A INPUT -i lo -p tcp --dport 5380 -j ACCEPT
     '';

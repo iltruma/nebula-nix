@@ -13,6 +13,7 @@
   ];
   boot.initrd.kernelModules = [ "zfs" ];
   boot.initrd.supportedFilesystems = [ "zfs" ];
+  boot.zfs.forceImportRoot = false;
 
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 

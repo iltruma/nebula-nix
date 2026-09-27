@@ -3,5 +3,6 @@ kind: Namespace
 metadata:
   name: beszel
   labels:
-    # L'agent usa privileged + hostPID + hostNetwork + hostPath (workaround K8s).
+    # Pod Security Admission: l'hub non ha bisogno di policy restrictive (labels
+    # legacy, agent gira come servizio NixOS host, non in-cluster).
     pod-security.kubernetes.io/enforce: privileged

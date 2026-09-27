@@ -3,11 +3,6 @@ kind: Service
 metadata:
   name: technitium-web
   namespace: infra-proxy
-  annotations:
-    # Traefik si connette al backend Technitium via HTTP (Technitium
-    # di default espone solo HTTP su :5380; HTTPS :53443 esiste ma è
-    # bloccato dal firewall per Homelab, gestiamo TLS solo a Traefik).
-    traefik.ingress.kubernetes.io/service.serversscheme: http
 spec:
   ports:
     - port: 5380
@@ -20,7 +15,8 @@ metadata:
   namespace: infra-proxy
 subsets:
   # Technitium è un servizio HOST NixOS (non un pod k8s), gira su
-  # 10.0.40.2:5380. Traefik lo raggiunge via hostNetwork.
+  # 10.0.40.2:5380. Traefik (pod in kube-system) lo raggiunge via cni0:
+  # kube-router accetta il traffico pod→host in INPUT prima di nixos-fw.
   - addresses:
       - ip: 10.0.40.2
     ports:
@@ -37,8 +33,8 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - dns.lab.paroparo.it
-      secretName: wildcard-lab-paroparo-it-tls
+      # wildcard via TLSStore default (kube-system): il secret cross-namespace
+      # non è risolvibile da una Ingress in infra-proxy (come negli altri ingress).
   rules:
     - host: dns.lab.paroparo.it
       http:
