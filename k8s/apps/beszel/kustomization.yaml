@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: beszel
 resources:
   - namespace.yaml
-  - hub-deployment.yaml
-  - hub-service.yaml
-  - hub-pvc.yaml
-  - hub-ingress.yaml
+  - deployment.yaml
+  - service.yaml
+  - pvc.yaml
+  - ingress.yaml

@@ -4,4 +4,4 @@ kind: Kustomization
 # Technitium resta un servizio host NixOS (non un pod k8s) su :5380.
 # L'Ingress instrada dns.lab.paroparo.it → Traefik → Technitium.
 resources:
-  - technitium-expose.yaml
+  - ingress.yaml

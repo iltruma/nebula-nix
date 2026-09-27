@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: beszel-hub
-          image: henrygd/beszel:0.18.7   # ponytail: pin esplicito, bump intenzionale via Renovate
+          image: henrygd/beszel:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
