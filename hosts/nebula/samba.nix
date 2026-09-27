@@ -9,6 +9,9 @@
     enable = true;
     # Le porte sono dichiarate solo in networking.nix (unica fonte di verita')
     openFirewall = false;
+    # Solo smbd: nmbd (browsing NetBIOS) e winbindd (domain join) non servono
+    nmbd.enable = false;
+    winbindd.enable = false;
     settings = {
       global = {
         "server role" = "standalone server";
