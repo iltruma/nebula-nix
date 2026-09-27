@@ -40,6 +40,25 @@ e `apps.yaml` sono oggetti `Kustomization` Flux: i layer infra si riconciliano
 in sequenza (traefik + cert-manager → config → apps, via `dependsOn`, per
 garantire che CRD e cert siano pronti).
 
+## Il nome della Kustomization radice è identità del GC
+
+Con `prune = true` (vedi `flux-cluster-kustomization` in `k3s.nix`), il nome
+della Kustomization radice non è un dettaglio estetico: identifica le risorse
+gestite. Rinominarla fa sì che, al prossimo switch, la vecchia venga rimossa
+dal cluster e il suo **finalizer** triggeri il GC di **tutto** l'albero gestito
+— Deployment *e* PVC con i dati. Succeso il 27/09 col rename `dyson` → `nebula`:
+wizard jellyfin e dati di uptime-kuma cancellati.
+
+Per rinominarla senza perdite, rimuovi prima il finalizer dalla vecchia:
+
+```bash
+kubectl -n flux-system patch kustomization <vecchio-nome> --type=merge \
+  -p '{"metadata":{"finalizers":null}}'
+```
+
+La Kustomization muore senza GC; la nuova adotta le risorse esistenti (stessi
+manifest, stessi nomi) e le PVC restano intatte.
+
 Aggiungere un nuovo servizio:
 
 1. Crea `k8s/apps/<nome>/` con i suoi manifest + `kustomization.yaml`.
