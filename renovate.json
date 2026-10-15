@@ -1,0 +1,61 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "Europe/Rome",
+  "schedule": ["before 7am on monday"],
+  "semanticCommitScope": "deps",
+  "labels": ["dependencies"],
+  "automerge": false,
+  "nix": {
+    "enabled": false
+  },
+  "flux": {
+    "managerFilePatterns": [
+      "/(^|/)gotk-components\\.ya?ml$/",
+      "/^k8s/infra/.+\\.yaml$/"
+    ]
+  },
+  "kubernetes": {
+    "managerFilePatterns": ["/^k8s/apps/[^/]+/deployment\\.yaml$/"]
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Chart flux2 del HelmChart k3s in hosts/nebula/k3s.nix (OCI su ghcr)",
+      "managerFilePatterns": ["/^hosts/nebula/k3s\\.nix$/"],
+      "matchStrings": [
+        "chart = \"oci://(?<depName>[^\"]+)\";\\s*\\n\\s*version = \"(?<currentValue>[^\"]+)\";"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "KUBECONFORM_VERSION in .github/workflows/ci.yml",
+      "managerFilePatterns": ["/^\\.github/workflows/ci\\.yml$/"],
+      "matchStrings": ["KUBECONFORM_VERSION: (?<currentValue>v[0-9][0-9.]*)"],
+      "depNameTemplate": "yannh/kubeconform",
+      "datasourceTemplate": "github-releases"
+    }
+  ],
+  "packageRules": [
+    {
+      "groupName": "k8s container images",
+      "matchManagers": ["kubernetes"],
+      "matchDatasources": ["docker"]
+    },
+    {
+      "groupName": "k8s helm charts",
+      "matchManagers": ["flux"],
+      "matchDatasources": ["helm"]
+    },
+    {
+      "groupName": "github actions",
+      "matchManagers": ["github-actions"]
+    },
+    {
+      "groupName": "chart flux2",
+      "matchDepNames": ["ghcr.io/fluxcd-community/charts/flux2"]
+    }
+  ]
+}
