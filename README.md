@@ -22,6 +22,29 @@ secrets/             secret host cifrati SOPS + age (*.enc.yaml)
 k8s/                 manifesti GitOps, sincronizzati da Flux (kustomization nebula)
 ```
 
+## Aggiornamenti automatici
+
+Nessun merge automatico: ogni aggiornamento arriva come PR e la mergi tu.
+Su ogni PR gira `ci.yml`. Il merge di una PR su `k8s/` è un deploy (Flux
+riconcilia in ~10 min); il merge di una PR su `flake.lock` **non** applica
+nulla, il rebuild resta manuale.
+
+| Superficie | Strumento | Config |
+|---|---|---|
+| `flake.lock` (nixpkgs, unstable, sops-nix, disko, impermanence) | Dependabot | `.github/dependabot.yml` |
+| chart Helm traefik/cert-manager (`k8s/infra/*/install/helmrelease.yaml`) | Renovate | `renovate.json` |
+| immagini in `k8s/apps/*/deployment.yaml` | Renovate | `renovate.json` |
+| azioni CI e `KUBECONFORM_VERSION` (`.github/workflows/ci.yml`) | Renovate | `renovate.json` |
+| chart flux2 in `hosts/nebula/k3s.nix` | Renovate | `renovate.json` |
+
+Dependabot funziona da solo, appena il file è su `main`. Renovate invece va
+installato una volta come app hosted sul repo (`https://github.com/apps/renovate`,
+*only select repositories* → `iltruma/nebula-nix`): senza l'app il file
+`renovate.json` non produce nulla.
+
+Restano manuali: il cambio canale in `flake.nix` (es. `nixos-26.05` →
+`nixos-27.05`), che nessuno dei due propone, e il rebuild su nebula.
+
 ## Comandi
 
 ```bash

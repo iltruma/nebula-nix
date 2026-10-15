@@ -1,0 +1,18 @@
+# Aggiornamenti automatici di flake.lock: Dependabot apre la PR, il merge lo fai tu.
+# Le altre superfici (chart Helm delle HelmRelease, immagini, azioni CI, pin fuori
+# standard) restano a Renovate: vedi renovate.json. Divisione non casuale —
+# Dependabot non legge le CR HelmRelease di Flux né i pin custom, e Renovate non
+# ha nix a disposizione per rigenerare la lock.
+version: 2
+updates:
+  # flake.lock: nixpkgs, nixpkgs-unstable, sops-nix, disko, impermanence
+  - package-ecosystem: "nix"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Una PR sola per tutte le input aggiornate, non cinque.
+    groups:
+      flake-inputs:
+        patterns: ["*"]
+    commit-message:
+      prefix: "chore(nix)"
