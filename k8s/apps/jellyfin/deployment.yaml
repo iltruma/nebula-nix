@@ -16,7 +16,7 @@ spec:
         app: jellyfin
     spec:
       containers:
-        - image: jellyfin/jellyfin:12.1
+        - image: jellyfin/jellyfin:12.2
           name: jellyfin
           securityContext:
             privileged: true #per accesso a /dev/dri
