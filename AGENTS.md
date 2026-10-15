@@ -19,6 +19,10 @@ Solo nebula: flake + `hosts/nebula/` + `modules/` + `secrets/` (SOPS) + `k8s/`
 - **Secrets**: mai plaintext; SOPS + age; non decifrare `*.enc.yaml`
 - **Commit**: `<tipo>(<scope>): <descrizione>` — italiano, scope nix/k8s/docs.
   L'agente può committare dopo aver proposto (messaggio + stat). Mai push.
+- **Versioni**: le aggiornano Dependabot (`flake.lock`, `.github/dependabot.yml`)
+  e Renovate (chart Helm, immagini, azioni CI, pin fuori standard,
+  `renovate.json`) aprendo PR settimanali — non bumpare a mano per routine.
+  Nessun automerge: il merge di una PR su `k8s/` è un deploy.
 - Prima di modifiche non banali: spiegare cosa/come/impatto e aspettare conferma
 
 ## Verifiche

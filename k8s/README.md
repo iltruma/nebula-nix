@@ -40,6 +40,34 @@ e `apps.yaml` sono oggetti `Kustomization` Flux: i layer infra si riconciliano
 in sequenza (traefik + cert-manager → config → apps, via `dependsOn`, per
 garantire che CRD e cert siano pronti).
 
+## Versioni pinnate: chi le aggiorna
+
+Qui le versioni sono sempre **esatte** — `version: "41.6.0"` nelle `HelmRelease`,
+`image: henrygd/beszel:0.20.0` nei `deployment.yaml`. Il pin in git è il record
+di cosa gira nel cluster, e un `git revert` è il rollback. Non usare `latest`:
+il pod non si aggiorna da solo (Kubernetes ripulla l'immagine solo quando il
+container viene ricreato), quindi si aggiornerebbe in momenti casuali — reboot,
+OOM, un `rollout restart` — e senza sapere che versione stava girando.
+
+Ad aggiornare queste righe è **Renovate** (`renovate.json` alla radice del repo),
+con PR settimanali. Nessun automerge: il merge di una PR qui **è** un deploy,
+Flux riconcilia in ~10 min.
+
+- **Chart Helm** (`k8s/infra/*/install/helmrelease.yaml`) — la `version` è la
+  *chart version*, non l'app version: per traefik `41.6.0` corrisponde a
+  Traefik v3.7.13. Il manager `flux` di Renovate collega `HelmRelease` e
+  `HelmRepository` **per file**, e solo se *entrambe* le risorse hanno
+  `metadata.namespace` valorizzato: è la forma dei due file attuali, tenerla.
+- **Immagini** (`k8s/apps/*/deployment.yaml`) — Renovate le intercetta con
+  `kubernetes.managerFilePatterns` = `^k8s/apps/[^/]+/deployment\.yaml$`.
+  Conseguenza pratica: un nuovo `k8s/apps/<nome>/deployment.yaml` è coperto
+  automaticamente, mentre un `image:` dentro un `statefulset.yaml`, un CronJob
+  o un file con un altro nome **non** viene visto — per quello va estesa la
+  regex in `renovate.json`.
+- **Chart flux2** (`hosts/nebula/k3s.nix`) — non è in questa cartella: è un
+  manifest del nodo, quindi lo aggiorna sempre Renovate via `customManagers`,
+  ma per applicarlo serve un rebuild di nebula.
+
 ## Il nome della Kustomization radice è identità del GC
 
 Con `prune = true` (vedi `flux-cluster-kustomization` in `k3s.nix`), il nome

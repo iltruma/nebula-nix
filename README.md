@@ -6,7 +6,7 @@ Flux GitOps. Cartella di lavoro per la config di rete VLAN (hEX S MikroTik).
 ## Struttura
 
 ```
-flake.nix            entry point (nixpkgs 25.11 + unstable per Technitium)
+flake.nix            entry point (nixpkgs 26.05 + unstable per Technitium)
 hosts/nebula/        tutta la config del server
   networking.nix     IP statico 10.0.40.2 (VLAN 40 dell'hEX S), firewall
   k3s.nix            k3s server + bootstrap manifests Flux + CoreDNS custom
@@ -20,6 +20,8 @@ hosts/nebula/        tutta la config del server
 modules/             helper cross-host: common (utenti, SSH, sops), keys
 secrets/             secret host cifrati SOPS + age (*.enc.yaml)
 k8s/                 manifesti GitOps, sincronizzati da Flux (kustomization nebula)
+.github/             CI (workflows/ci.yml) + dependabot.yml (aggiorna flake.lock)
+renovate.json        aggiornamenti chart/immagini/azioni (vedi sotto)
 ```
 
 ## Aggiornamenti automatici
@@ -41,6 +43,18 @@ Dependabot funziona da solo, appena il file è su `main`. Renovate invece va
 installato una volta come app hosted sul repo (`https://github.com/apps/renovate`,
 *only select repositories* → `iltruma/nebula-nix`): senza l'app il file
 `renovate.json` non produce nulla.
+
+Perché due strumenti e non uno: Dependabot non sa leggere le CR `HelmRelease` di
+Flux (il suo ecosistema `helm` guarda solo i `Chart.yaml`) né i pin fuori
+standard, mentre Renovate non ha il binario `nix` con cui rigenerare
+`flake.lock`. Da qui anche `"nix": { "enabled": false }` in `renovate.json`:
+il manager nix di Renovate è in beta e quindi spento, ma se un giorno
+diventasse attivo di default proverebbe a toccare la lock senza riuscirci.
+
+Quando: Renovate apre le PR lunedì mattina (`schedule` in `renovate.json`),
+Dependabot secondo la propria coda settimanale. Per forzare una run:
+*Insights → Dependency graph → Dependabot → Check for updates* per Dependabot,
+la casella in fondo alla issue *Dependency Dashboard* per Renovate.
 
 Restano manuali: il cambio canale in `flake.nix` (es. `nixos-26.05` →
 `nixos-27.05`), che nessuno dei due propone, e il rebuild su nebula.
