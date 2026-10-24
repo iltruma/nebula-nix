@@ -30,7 +30,7 @@ spec:
               name: data
       containers:
         - name: scryer
-          image: ghcr.io/scryer-media/scryer:0.21-latest
+          image: ghcr.io/scryer-media/scryer:0.21.20
           env:
             - name: PUID
               value: "1000"
