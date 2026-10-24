@@ -18,7 +18,7 @@ spec:
     spec:
       # qBittorrent corrompe i file se lo shutdown viene interrotto:
       # il README upstream impone 1800s di stop timeout.
-      stopGracePeriodSeconds: 1800
+      terminationGracePeriodSeconds: 1800
       initContainers:
         # Directory di download e ownership allineati a cosimo:users (1000:100),
         # gli stessi uid/gid che usa Samba su /mnt/media.
