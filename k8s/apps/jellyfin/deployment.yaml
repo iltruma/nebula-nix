@@ -45,5 +45,6 @@ spec:
           persistentVolumeClaim:
             claimName: jellyfin-cache-pvc
         - name: jellyfin-media
-          persistentVolumeClaim:
-            claimName: jellyfin-media-pvc
+          hostPath:
+            path: /mnt/media
+            type: Directory

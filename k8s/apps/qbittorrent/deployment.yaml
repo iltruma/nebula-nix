@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent
+  namespace: qbittorrent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qbittorrent
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: qbittorrent
+    spec:
+      # qBittorrent corrompe i file se lo shutdown viene interrotto:
+      # il README upstream impone 1800s di stop timeout.
+      stopGracePeriodSeconds: 1800
+      initContainers:
+        # Directory di download e ownership allineati a cosimo:users (1000:100),
+        # gli stessi uid/gid che usa Samba su /mnt/media.
+        - name: init-permissions
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - mkdir -p /downloads/incomplete && chown -R 1000:100 /config /downloads
+          volumeMounts:
+            - mountPath: /config
+              name: qbittorrent-config
+            - mountPath: /downloads
+              name: downloads
+      containers:
+        - image: qbittorrentofficial/qbittorrent-nox:5.3.0-2
+          name: qbittorrent
+          env:
+            - name: QBT_LEGAL_NOTICE
+              value: "confirm"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "100"
+            - name: UMASK
+              value: "002"
+            - name: TZ
+              value: "Europe/Rome"
+            - name: QBT_WEBUI_PORT
+              value: "8080"
+            - name: QBT_TORRENTING_PORT
+              value: "6881"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 6881
+              hostPort: 6881
+              protocol: TCP
+            - containerPort: 6881
+              hostPort: 6881
+              protocol: UDP
+          volumeMounts:
+            - mountPath: /config
+              name: qbittorrent-config
+            - mountPath: /downloads
+              name: downloads
+      volumes:
+        - name: qbittorrent-config
+          persistentVolumeClaim:
+            claimName: qbittorrent-config-pvc
+        # Sotto-cartella di /mnt/media (dataset ZFS tank/media): i download
+        # restano sullo stesso filesystem di /mnt/media/movies, così un
+        # eventuale Radarr futuro può fare hardlink/spostamenti atomici.
+        - name: downloads
+          hostPath:
+            path: /mnt/media/downloads
+            type: DirectoryOrCreate
