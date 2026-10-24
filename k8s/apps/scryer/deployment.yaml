@@ -1,0 +1,70 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scryer
+  namespace: scryer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scryer
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: scryer
+    spec:
+      initContainers:
+        # Root isolate del pilota: Scryer non deve toccare /data/movies o
+        # /data/series esistenti finché non lo promuoviamo.
+        - name: init-paths
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - mkdir -p /data/scryer-test/movies /data/scryer-test/series /data/scryer-test/anime && chown -R 1000:100 /data/scryer-test
+          volumeMounts:
+            - mountPath: /data
+              name: data
+      containers:
+        - name: scryer
+          image: ghcr.io/scryer-media/scryer:0.21-latest
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "100"
+            - name: UMASK
+              value: "002"
+            - name: TZ
+              value: "Europe/Rome"
+            - name: SCRYER_PUBLIC_URL
+              value: "https://scryer.lab.paroparo.it"
+            # Root di test: la libreria esistente resta fuori dal pilota.
+            - name: SCRYER_MOVIES_PATH
+              value: "/data/scryer-test/movies"
+            - name: SCRYER_SERIES_PATH
+              value: "/data/scryer-test/series"
+            - name: SCRYER_ANIME_PATH
+              value: "/data/scryer-test/anime"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /config
+              name: config
+            - mountPath: /data
+              name: data
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: scryer-config-pvc
+        # Un solo mount /data: download e libreria restano sullo stesso
+        # filesystem, condizione per l'import in hardlink (niente copie).
+        # Contiene anche /mnt/media/downloads già usato da qBittorrent.
+        - name: data
+          hostPath:
+            path: /mnt/media
+            type: Directory
