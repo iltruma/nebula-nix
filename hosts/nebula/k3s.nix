@@ -79,35 +79,19 @@
         metadata.name = "flux-system";
       };
     };
+    # ConfigMap custom supportato da k3s: il Corefile built-in importa
+    # /etc/coredns/custom/*.override. Forward globale a Technitium (LAN).
     manifests."coredns-custom" = {
       content = {
         apiVersion = "v1";
         kind = "ConfigMap";
         metadata = {
-          name = "coredns";
+          name = "coredns-custom";
           namespace = "kube-system";
         };
         data = {
-          Corefile = ''
-            .:53 {
-                errors
-                health
-                ready
-                kubernetes cluster.local in-addr.arpa ip6.arpa {
-                  pods insecure
-                  fallthrough in-addr.arpa ip6.arpa
-                }
-                forward . 10.0.40.2:53
-                cache 30
-                loop
-                reload
-                loadbalance
-            }
-            lab.paroparo.it:53 {
-                errors
-                cache 30
-                forward . 10.0.40.2:53
-            }
+          "forward.override" = ''
+            forward . 10.0.40.2:53
           '';
         };
       };

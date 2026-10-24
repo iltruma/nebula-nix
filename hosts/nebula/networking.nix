@@ -14,9 +14,7 @@
 
   networking.defaultGateway = "10.0.40.1";
   networking.nameservers = [
-    "127.0.0.1"  # Technitium locale
-    "1.1.1.1"
-    "9.9.9.9"
+    "10.0.40.2"  # Technitium (LAN); k3s scarta il loopback 127.0.0.1 per i pod
   ];
 
   networking.firewall = {
