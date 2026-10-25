@@ -119,4 +119,8 @@
   networking.firewall.allowedTCPPorts = [ 10250 ]; # kubelet API (richiesto da k3s metrics)
 
   environment.systemPackages = with pkgs; [ k3s fluxcd];
+
+  # Alias interattivo: riconcilia la Kustomization apps e la source Git.
+  environment.shellAliases.reconcile =
+    "flux reconcile kustomization apps --with-source";
 }
