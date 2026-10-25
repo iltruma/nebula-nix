@@ -37,7 +37,6 @@ taiga   IN  A   10.0.10.253
 *       IN  A   10.0.40.2
 
 ; ── Servizi k3s (ridondanti rispetto al wildcard, espliciti per chiarezza) ───
-uptime      IN  A   10.0.40.2
 homepage    IN  A   10.0.40.2
 beszel      IN  A   10.0.40.2
 

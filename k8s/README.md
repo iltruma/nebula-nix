@@ -22,7 +22,6 @@ k8s/
 │   └── cert-manager/                  HelmRelease cert-manager + ClusterIssuer + secret.enc.yaml
 │
 └── apps/                              ← Servizi applicativi, una cartella per servizio
-    ├── uptime-kuma/                   Status page
     ├── beszel/                        Hub + agent monitoring
     ├── homepage/                      Dashboard dichiarativa
     ├── technitium/                    Ingress verso Technitium su host (namespace infra-proxy)
