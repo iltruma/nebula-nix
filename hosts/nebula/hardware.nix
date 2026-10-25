@@ -33,6 +33,19 @@
     efi.canTouchEfiVariables = true;
   };
 
+  # ASPM non forzato: ACPI FADT dichiara ASPM non supportato; pcie_aspm=force è rischioso.
+  # EPP "power": riduce il package power idle (A/B misurato ~1,50 -> ~1,43 W).
+  systemd.services.cpu-epp = {
+    description = "Set CPU energy performance preference to power";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig.Type = "oneshot";
+    script = ''
+      for f in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do
+        echo power > "$f"
+      done
+    '';
+  };
+
   # ponytail: rigenerare al primo install (head -c4 /dev/urandom | od -A none -t x4)
   networking.hostId = "963e586d";
 }
