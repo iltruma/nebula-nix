@@ -20,7 +20,7 @@ spec:
         # Root isolate del pilota: Scryer non deve toccare /data/movies o
         # /data/series esistenti finché non lo promuoviamo.
         - name: init-paths
-          image: busybox:1.37
+          image: busybox:1.38
           command:
             - sh
             - -c
@@ -30,7 +30,7 @@ spec:
               name: data
       containers:
         - name: scryer
-          image: ghcr.io/scryer-media/scryer:0.21.20
+          image: ghcr.io/scryer-media/scryer:0.21.23
           env:
             - name: PUID
               value: "1000"
