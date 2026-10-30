@@ -23,7 +23,7 @@ spec:
         # Directory di download e ownership allineati a cosimo:users (1000:100),
         # gli stessi uid/gid che usa Samba su /mnt/media.
         - name: init-permissions
-          image: busybox:1.37
+          image: busybox:1.38
           command:
             - sh
             - -c
