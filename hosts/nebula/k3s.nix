@@ -65,7 +65,7 @@
           targetNamespace = "flux-system";
           createNamespace = true;
           chart = "oci://ghcr.io/fluxcd-community/charts/flux2";
-          version = "2.19.1";
+          version = "2.20.0";
         };
       };
     };
